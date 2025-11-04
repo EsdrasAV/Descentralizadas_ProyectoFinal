@@ -1,2 +1,2 @@
-# descentralizadas_proyecto_final
+# Proyecto final de Aplicaciones Descentralizadas
 Repositorio para el proyecto final de la materia de Aplicaciones Descentralizadas.

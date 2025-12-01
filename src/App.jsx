@@ -2,16 +2,17 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import { BrowserRouter } from 'react-router-dom';
 import React from 'react'
-import CryptoStore from './components/testmain'
+import Shop from './components/shop.jsx'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
       <div>
-        <CryptoStore />
+        <BrowserRouter>
+          <Shop />
+        </BrowserRouter>
       </div>
     </>
   )

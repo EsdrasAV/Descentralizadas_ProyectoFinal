@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ShoppingCart, AlertCircle, Loader, Package, Cpu, Monitor, HardDrive, Search, Filter, X } from 'lucide-react';
+import { Link } from "react-router-dom";
+import AgregarProducto from "./add";
 
 export default function Catalog() {
     const [products, setProducts] = useState([]);
@@ -38,11 +40,11 @@ export default function Catalog() {
     }
     const categories = [
         { id: 'all', label: 'Todo' },
-        { id: 'gpu', label: 'GPUs' },
-        { id: 'cpu', label: 'CPUs' },
-        { id: 'ram', label: 'RAM' },
-        { id: 'storage', label: 'Discos' },
-        { id: 'psu', label: 'Fuentes' },
+        { id: 'gpu', label: 'Tarjetas gráficas' },
+        { id: 'cpu', label: 'Procesadores' },
+        { id: 'ram', label: 'Memorias RAM' },
+        { id: 'storage', label: 'Discos duro' },
+        { id: 'psu', label: 'Fuentes de poder' },
         { id: 'case', label: 'Gabinetes' },
     ];
 
@@ -52,7 +54,7 @@ export default function Catalog() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-slate-700 pb-6">
                     <div className="flex items-center gap-3">
                         <Package className="text-blue-500" size={32} />
-                        <h2 className="text-3xl font-bold text-white">Catálogo</h2>
+                        <h2 className="text-3xl font-bold text-white">Productos</h2>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
                         <div className="relative">
@@ -72,19 +74,25 @@ export default function Catalog() {
                         </div>
                     </div>
                 </div>
-                <div className="flex flex-wrap gap-2 mb-8">
-                    {categories.map(cat => (
-                        <button
-                            key={cat.id}
-                            onClick={() => setSelectedCategory(cat.id)}
-                            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${selectedCategory === cat.id
-                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25'
+                <div className="flex flex-wrap gap-2 mb-8 items-center justify-between">
+                    <div className="flex flex-wrap gap-2">
+                        {categories.map(cat => (
+                            <button
+                                key={cat.id}
+                                onClick={() => setSelectedCategory(cat.id)}
+                                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                                    selectedCategory === cat.id 
+                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25' 
                                     : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white border border-slate-700'
                                 }`}
-                        >
-                            {cat.label}
-                        </button>
-                    ))}
+                            >
+                                {cat.label}
+                            </button>
+                        ))}
+                    </div>
+                    <Link to="/productos/agregar" className="flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold bg-green-600/10 text-blue-400 border border-blue-600/50 hover:bg-blue-600 hover:text-white transition-all shadow-lg hover:shadow-blue-600/20">
+                        Agregar Producto
+                    </Link>
                 </div>
                 {loading ? (
                     <div className="flex flex-col justify-center items-center h-64 gap-4">

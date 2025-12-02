@@ -6,6 +6,7 @@ import Footer from './footer.jsx';
 import Main from './main.jsx';
 import Catalog from './productos/catalog.jsx';
 import AgregarProducto from './productos/add.jsx';
+import Pedidos from './pedidos.jsx';
 
 export default function Shop() {
     const [walletAddress, setWalletAddress] = useState(null);
@@ -39,7 +40,7 @@ export default function Shop() {
                 <Route path="/" element={<Main />} />
                 <Route path="/productos" 
                     element={<Catalog walletAddress={walletAddress} signer={signer}/>} />
-                <Route path="/pedidos" element={<div className="pt-32 text-center text-white text-2xl">Mis Pedidos</div>} />
+                <Route path="/pedidos" element={<Pedidos />} />
                 <Route path="/productos/agregar" element={<AgregarProducto />} />
             </Routes>
             <Footer />

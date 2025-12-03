@@ -18,9 +18,9 @@ export default function Shop() {
             return;
         }
         try {
-            const provider = new ethers.BrowserProvider(window.ethereum);
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
             await provider.send("eth_requestAccounts", []);
-            const newSigner = await provider.getSigner();
+            const newSigner = provider.getSigner();
             const address = await newSigner.getAddress();
             setSigner(newSigner);
             setWalletAddress(address);
@@ -29,6 +29,7 @@ export default function Shop() {
             alert("No se pudo conectar con MetaMask.");
         }
     };
+
     return (
         <div className="min-h-screen bg-slate-900">
             <Navbar

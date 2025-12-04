@@ -97,9 +97,11 @@ export default function Catalog() {
             });
             await tx.wait();
             alert("Compra realizada correctamente");
+            window.location.reload();
         } catch (err) {
             console.error("BUY ERROR:", err);
             alert("Error al comprar");
+            window.location.reload();
         }
     };
 

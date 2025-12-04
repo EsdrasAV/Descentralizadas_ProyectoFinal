@@ -27,9 +27,6 @@ export default function Navbar({ walletAddress, connectWallet, cartCount }) {
                                     <Link to="/productos" className="text-slate-300 hover:text-blue-400 hover:bg-slate-800/50 px-3 py-2 rounded-md text-sm font-medium transition-all">
                                         Catálogo
                                     </Link>
-                                    <Link to="/pedidos" className="text-slate-300 hover:text-blue-400 hover:bg-slate-800/50 px-3 py-2 rounded-md text-sm font-medium transition-all">
-                                        Mis Pedidos
-                                    </Link>
                                 </div>
                             </div>
                         </div>

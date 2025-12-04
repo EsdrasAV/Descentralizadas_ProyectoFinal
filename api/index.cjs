@@ -33,11 +33,13 @@ const marketContract = new ethers.Contract(MARKET_ADDRESS, marketJson.abi, walle
 
 app.get("/api/products", async (req, res) => {
   try {
-    const total = await storeContract.getProductCount();
+    const total = await storeContract.productCount();
     let products = [];
 
     for (let i = 0; i < total; i++) {
       const p = await storeContract.products(i + 1);
+
+      if (!p.available) continue;
 
       const category = await marketContract.getCategoryOfProduct(p.id.toNumber());
 
@@ -53,12 +55,12 @@ app.get("/api/products", async (req, res) => {
     }
 
     res.json({ success: true, products });
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Error al obtener productos" });
   }
 });
+
 
 app.get("/api/products/category/:category", async (req, res) => {
   try {
@@ -68,6 +70,9 @@ app.get("/api/products/category/:category", async (req, res) => {
 
     for (let id of productIds) {
       const p = await storeContract.products(id);
+
+      if (!p.available) continue;
+
       products.push({
         id: p.id.toNumber(),
         name: p.name,
@@ -79,12 +84,12 @@ app.get("/api/products/category/:category", async (req, res) => {
     }
 
     res.json({ success: true, category, products });
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Error al obtener productos por categoría" });
   }
 });
+
 
 const FormData = require("form-data");
 
@@ -93,7 +98,8 @@ app.post("/api/products/add", upload.single("image"), async (req, res) => {
     const { name, priceEth, category } = req.body;
     const imageFile = req.file;
 
-    if (!imageFile) return res.status(400).json({ success: false, message: "Falta la imagen" });
+    if (!imageFile)
+      return res.status(400).json({ success: false, message: "Falta la imagen" });
 
     const formData = new FormData();
     formData.append("file", fs.createReadStream(imageFile.path));
@@ -106,43 +112,33 @@ app.post("/api/products/add", upload.single("image"), async (req, res) => {
         maxBodyLength: Infinity,
         headers: {
           ...formData.getHeaders(),
-          "Authorization": `Bearer ${process.env.PINATA_JWT}`,
+          Authorization: `Bearer ${process.env.PINATA_JWT}`,
         },
       }
     );
 
     const ipfsHash = ipfsResponse.data.IpfsHash;
+
     fs.unlinkSync(imageFile.path);
-
-    const txStore = await storeContract.createProduct(
-      name,
-      ethers.utils.parseEther(priceEth.toString()),
-      ipfsHash
-    );
-    const receiptStore = await txStore.wait();
-    const productId = receiptStore.events[0].args.id.toNumber();
-
-    const txMarket = await marketContract.addProductToCategory(productId, category);
-    await txMarket.wait();
 
     res.json({
       success: true,
-      message: "Producto agregado con imagen y categoría",
+      message: "Imagen subida correctamente",
       ipfsHash,
-      productId,
-      txStoreHash: txStore.hash,
-      txMarketHash: txMarket.hash
+      name,
+      priceEth,
+      category,
     });
-
   } catch (err) {
     console.error(err);
     res.status(500).json({
       success: false,
-      message: "Error al agregar producto",
-      error: err.message
+      message: "Error al subir imagen",
+      error: err.message,
     });
   }
 });
+
 
 const PORT = 3000;
 app.listen(PORT, () => console.log(`API Web3 Tienda corriendo en http://localhost:${PORT}`));

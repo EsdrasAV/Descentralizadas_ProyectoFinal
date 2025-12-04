@@ -108,6 +108,12 @@ export default function Catalog() {
         return `https://gateway.pinata.cloud/ipfs/${hash}`;
     };
 
+    const filteredProducts = products
+        .filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        .filter(p => p.available);
+
+
+
     return (
         <div className="bg-slate-900 min-h-screen pt-24 pb-12 px-4">
             <div className="max-w-[1600px] mx-auto">
@@ -141,6 +147,7 @@ export default function Catalog() {
                                 key={cat.id}
                                 onClick={() => {
                                     setSelectedCategory(cat.id);
+                                    setSearchTerm("");
                                     fetchProductsByCategory(cat.backend);
                                 }}
                                 className={`px-4 py-1.5 rounded-full text-sm transition-all ${selectedCategory === cat.id
@@ -166,7 +173,7 @@ export default function Catalog() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {products.map(p => (
+                        {filteredProducts.map(p => (
                             <div key={p.id} className="bg-slate-800 rounded-xl border border-slate-700 hover:border-blue-500 transition-all shadow-lg group flex flex-col">
                                 <div className="h-48 bg-slate-900 flex items-center justify-center relative">
                                     {p.image ? (

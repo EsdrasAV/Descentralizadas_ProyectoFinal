@@ -42,7 +42,10 @@ export default function Shop() {
                 <Route path="/productos" 
                     element={<Catalog walletAddress={walletAddress} signer={signer}/>} />
                 <Route path="/pedidos" element={<Pedidos />} />
-                <Route path="/productos/agregar" element={<AgregarProducto />} />
+                <Route 
+                    path="/productos/agregar" 
+                    element={<AgregarProducto signer={signer} walletAddress={walletAddress} />} 
+                />
             </Routes>
             <Footer />
         </div>

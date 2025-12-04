@@ -2,41 +2,46 @@
 pragma solidity ^0.8.20;
 
 contract Store {
-    uint public productCount = 0;
-
     struct Product {
         uint id;
         string name;
         uint price;
-        address payable seller;
-        bool available;
+        address seller;
         string image;
+        bool available;
     }
 
+    uint public productCount;
     mapping(uint => Product) public products;
 
-    event ProductCreated(uint id, string name, uint price, address seller, string image);
-    event ProductPurchased(uint id, address buyer);
+    event ProductCreated(uint id, string name, uint price, address seller);
+    event ProductSold(uint id, address buyer);
 
     function createProduct(string memory _name, uint _price, string memory _image) public {
-        require(_price > 0, "El precio debe ser mayor que 0");
+        require(_price > 0, "El precio debe ser mayor a 0");
+
         productCount++;
-        products[productCount] = Product(productCount, _name, _price, payable(msg.sender), true, _image);
-        emit ProductCreated(productCount, _name, _price, msg.sender, _image);
+        products[productCount] = Product({
+            id: productCount,
+            name: _name,
+            price: _price,
+            seller: msg.sender,
+            image: _image,
+            available: true
+        });
+
+        emit ProductCreated(productCount, _name, _price, msg.sender);
     }
 
     function buyProduct(uint _id) public payable {
         Product storage product = products[_id];
         require(product.available, "Producto no disponible");
-        require(msg.value >= product.price, "No enviaste suficiente ETH");
+        require(msg.value >= product.price, "Ether insuficiente");
 
-        product.seller.transfer(msg.value);
         product.available = false;
 
-        emit ProductPurchased(_id, msg.sender);
-    }
+        payable(product.seller).transfer(product.price);
 
-    function getProductCount() public view returns (uint) {
-        return productCount;
+        emit ProductSold(_id, msg.sender);
     }
 }

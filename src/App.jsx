@@ -8,14 +8,11 @@ import Shop from './components/shop.jsx'
 
 function App() {
   return (
-    <>
-      <div>
-        <BrowserRouter>
-          <Shop />
-        </BrowserRouter>
-      </div>
-    </>
-  )
+    <BrowserRouter>
+      <Shop />
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
+

@@ -9,7 +9,11 @@ import marketAbi from "../../../artifacts/contracts/Marketplace.sol/Marketplace.
 const STORE_ADDRESS = import.meta.env.VITE_STORE_ADDRESS;
 const MARKET_ADDRESS = import.meta.env.VITE_MARKET_ADDRESS;
 
-export default function AgregarProducto() {
+export default function AgregarProducto({ signer, walletAddress }) {
+
+    console.log("RENDER AgregarProducto");
+
+
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
@@ -53,33 +57,86 @@ export default function AgregarProducto() {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!formData.image) {
-            alert("Debes seleccionar una imagen");
-            return;
-        }
+    e.preventDefault();
+
+    if (loading) return;
+    setLoading(true);
+
+    if (!signer) {
+        alert("Conecta tu wallet primero");
+        setLoading(false);
+        return;
+    }
+
+    try {
+
         const formDataToSend = new FormData();
         formDataToSend.append("name", formData.name);
         formDataToSend.append("priceEth", formData.priceEth);
         formDataToSend.append("category", formData.category);
         formDataToSend.append("image", formData.image);
-        try {
-            const res = await fetch("http://localhost:3000/api/products/add", {
-                method: "POST",
-                body: formDataToSend
-            });
-            const data = await res.json();
-            console.log("DATA:", data);
-            if (!data.success) {
-                alert("Error: " + data.message);
-                return;
-            }
-            alert("Producto subido correctamente. IPFS: " + data.ipfsHash);
-        } catch (err) {
-            console.error("ERR:", err);
-            alert("Error al enviar al servidor");
+
+        const res = await fetch("http://localhost:3000/api/products/add", {
+            method: "POST",
+            body: formDataToSend,
+        });
+
+        const data = await res.json();
+        if (!data.success) {
+            alert("Error subiendo imagen a IPFS");
+            setLoading(false);
+            return;
         }
-    };
+
+        const imageHash = data.ipfsHash;
+
+        const storeContract = new ethers.Contract(
+            STORE_ADDRESS,
+            storeAbi.abi,
+            signer
+        );
+
+        const priceWei = ethers.utils.parseEther(formData.priceEth);
+
+        console.log("Creando producto en blockchain…");
+        const tx = await storeContract.createProduct(
+            formData.name,
+            priceWei,
+            imageHash
+        );
+
+        const receipt = await tx.wait();
+
+        const event = receipt.events.find(e => e.event === "ProductCreated");
+        const productId = event.args.id.toNumber();
+
+        console.log("Producto creado ID:", productId);
+
+        const marketContract = new ethers.Contract(
+            MARKET_ADDRESS,
+            marketAbi.abi,
+            signer
+        );
+
+        const tx2 = await marketContract.addProductToCategory(
+            productId,
+            formData.category
+        );
+
+        await tx2.wait();
+
+        alert("Producto creado correctamente");
+        navigate("/productos");
+
+    } catch (err) {
+        console.error(err);
+        alert("Error al crear el producto");
+    } finally {
+        setLoading(false);
+    }
+};
+
+
 
 
     return (
